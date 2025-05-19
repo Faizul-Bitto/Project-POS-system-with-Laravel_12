@@ -1,0 +1,28 @@
+1. First - Migration Files
+    - Users Table -> Already exists, just customize
+
+    php artisan make:migration create_categories
+    php artisan make:migration create_customers
+    php artisan make:migration create_products
+    php artisan make:migration create_invoices
+    php artisan make:migration create_invoice_products
+
+2. Second - Model Files
+    - User Model is already generated, just modify
+
+    php artisan make:model Customer
+    php artisan make:model Category
+    php artisan make:model Invoice
+    php artisan make:model InvoiceProduct
+    php artisan make:model Product
+
+3. Third - Controller Files
+    php artisan make:controller CategoryController
+    php artisan make:controller CustomerController
+    php artisan make:controller DashboardController
+    php artisan make:controller HomeController
+    php artisan make:controller InvoiceController
+    php artisan make:controller ProductController
+    php artisan make:controller UserController
+
+4. Fourth - Middleware Files
