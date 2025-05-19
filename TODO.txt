@@ -1,11 +1,11 @@
 1. First - Migration Files
     - Users Table -> Already exists, just customize
 
-    php artisan make:migration create_categories
-    php artisan make:migration create_customers
-    php artisan make:migration create_products
-    php artisan make:migration create_invoices
-    php artisan make:migration create_invoice_products
+    php artisan make:migration create_categories_table
+    php artisan make:migration create_customers_table
+    php artisan make:migration create_products_table
+    php artisan make:migration create_invoices_table
+    php artisan make:migration create_invoice_products_table
 
 2. Second - Model Files
     - User Model is already generated, just modify
