@@ -26,3 +26,6 @@
     php artisan make:controller UserController
 
 4. Fourth - Middleware Files
+
+5. JWT ->
+composer require firebase/php-jwt
