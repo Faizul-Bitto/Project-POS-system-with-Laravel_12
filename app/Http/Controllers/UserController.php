@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Helper\JWTToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -43,9 +44,31 @@ class UserController extends Controller {
                 'message' => $e->getMessage(),
             ], 500 );
         }
+
     }
 
     public function userLogin( Request $request ) {
+
+        $email    = $request->input( 'email' );
+        $password = $request->input( 'password' );
+
+        $user = User::where( 'email', '=', $email )->first();
+
+        if ( $user && Hash::check( $password, $user->password ) ) {
+            $token = JWTToken::createToken( $request->input( 'email' ), $user->id );
+
+            return response()->json( [
+                'status'  => 'success',
+                'message' => 'User logged in successfully',
+                'user'    => $user,
+                'token'   => $token,
+            ], 200 )->cookie( 'token', $token, time() + 60 * 24 * 30 );
+        } else {
+            return response()->json( [
+                'status'  => 'failed',
+                'message' => 'User not found',
+            ], 404 );
+        }
 
     }
 
@@ -72,4 +95,5 @@ class UserController extends Controller {
     public function userProfileUpdate( Request $request ) {
 
     }
+
 }
