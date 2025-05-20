@@ -1,31 +1,203 @@
-1. First - Migration Files
-    - Users Table -> Already exists, just customize
+1.  Creating Migration Files
+        - Users Table -> Already exists, just customize
 
-    php artisan make:migration create_categories_table
-    php artisan make:migration create_customers_table
-    php artisan make:migration create_products_table
-    php artisan make:migration create_invoices_table
-    php artisan make:migration create_invoice_products_table
+        php artisan make:migration create_categories_table
+        php artisan make:migration create_customers_table
+        php artisan make:migration create_products_table
+        php artisan make:migration create_invoices_table
+        php artisan make:migration create_invoice_products_table
 
-2. Second - Model Files
-    - User Model is already generated, just modify
+2.  Creating Model Files
+        - User Model is already generated, just modify
 
-    php artisan make:model Customer
-    php artisan make:model Category
-    php artisan make:model Invoice
-    php artisan make:model InvoiceProduct
-    php artisan make:model Product
+        php artisan make:model Customer
+        php artisan make:model Category
+        php artisan make:model Invoice
+        php artisan make:model InvoiceProduct
+        php artisan make:model Product
 
-3. Third - Controller Files
-    php artisan make:controller CategoryController
-    php artisan make:controller CustomerController
-    php artisan make:controller DashboardController
-    php artisan make:controller HomeController
-    php artisan make:controller InvoiceController
-    php artisan make:controller ProductController
-    php artisan make:controller UserController
+3.  Creating Controller Files
+        php artisan make:controller CategoryController
+        php artisan make:controller CustomerController
+        php artisan make:controller DashboardController
+        php artisan make:controller HomeController
+        php artisan make:controller InvoiceController
+        php artisan make:controller ProductController
+        php artisan make:controller UserController
 
-4. Fourth - Middleware Files
+4.  Customizing the migration and model files with relationship establishment
 
-5. JWT ->
-composer require firebase/php-jwt
+        - users Table:
+        Schema::create( 'users', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'name' );
+            $table->string( 'mobile' );
+            $table->string( 'otp' );
+            $table->string( 'email' )->unique();
+
+            $table->timestamp( 'email_verified_at' )->nullable();
+
+            $table->string( 'password' );
+            $table->rememberToken();
+
+            $table->timestamps();
+        } );
+
+
+        - categories Table:
+        Schema::create( 'categories', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'name', 50 );
+
+            $table->unsignedBigInteger( 'user_id' );
+            $table->foreign( 'user_id' )->references( 'id' )->on( 'users' )->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->timestamps();
+        } );
+
+
+
+        - customers Table:
+        Schema::create( 'customers', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'name', 50 );
+            $table->string( 'email', 50 )->unique();
+            $table->string( 'mobile', 50 );
+
+            $table->unsignedBigInteger( 'user_id' );
+            $table->foreign( 'user_id' )->references( 'id' )->on( 'users' )->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->timestamps();
+        } );
+
+
+
+        - products Table:
+        Schema::create( 'products', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'name', 50 );
+            $table->string( 'price', 50 );
+            $table->string( 'unit', 50 );
+
+            $table->unsignedBigInteger( 'user_id' );
+            $table->unsignedBigInteger( 'category_id' );
+            $table->foreign( 'user_id' )->references( 'id' )->on( 'users' )->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign( 'category_id' )->references( 'id' )->on( 'categories' )->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->timestamps();
+        } );
+
+
+
+        - invoices Table:
+        Schema::create( 'invoices', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'total', 50 );
+            $table->string( 'discount', 50 );
+            $table->string( 'vat', 50 );
+            $table->string( 'payable', 50 );
+
+            $table->unsignedBigInteger( 'user_id' );
+            $table->unsignedBigInteger( 'customer_id' );
+            $table->foreign( 'user_id' )->references( 'id' )->on( 'users' )->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign( 'customer_id' )->references( 'id' )->on( 'customers' )->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->timestamps();
+        } );
+
+
+
+        - invoice_products Table:
+        Schema::create( 'invoice_products', function ( Blueprint $table ) {
+            $table->id();
+            $table->string( 'qty', 50 );
+            $table->string( 'sale_price', 50 );
+
+            $table->unsignedBigInteger( 'user_id' );
+            $table->unsignedBigInteger( 'invoice_id' );
+            $table->unsignedBigInteger( 'product_id' );
+            $table->foreign( 'user_id' )->references( 'id' )->on( 'users' )->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign( 'invoice_id' )->references( 'id' )->on( 'invoices' )->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign( 'product_id' )->references( 'id' )->on( 'products' )->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->timestamps();
+        } );
+
+
+5.  Customizing Model files with Relationships establishment between the models
+
+        - Category:
+        protected $fillable = ['name', 'user_id'];
+
+        - Customer:
+        protected $fillable = ['name', 'email', 'mobile', 'user_id'];
+
+        - Invoice:
+        protected $fillable = ['total', 'discount', 'vat', 'payable', 'user_id', 'customer_id'];
+
+        public function customers(): BelongsTo {
+            return $this->belongsTo( Customer::class );
+        }
+
+        - InvoiceProduct:
+        protected $fillable = ['invoice_id', 'product_id', 'quantity', 'price'];
+
+        public function product(): BelongsTo {
+            return $this->belongsTo( Product::class );
+        }
+
+        - Product:
+        protected $fillable = ['name', 'price', 'unit', 'user_id', 'category_id'];
+
+6.  Creating 'Helper/JWTToken.php' file in 'app' directory & firebase/php-jwt Token Setup
+        composer require firebase/php-jwt
+
+7. 'JWTToken.php': createToken(), verifyToken(), createTokenForResetPassword() methods setup
+
+        public static function createToken( $userEmail, $userId ) {
+
+            $key = env( 'JWT_KEY' );
+
+            $payload = [
+                'iss'       => 'laravel-token',
+                'iat'       => time(),
+                'exp'       => time() + 60 * 60 * 24 * 30,
+                'userEmail' => $userEmail,
+                'userId'    => $userId,
+            ];
+
+            return JWT::encode( $payload, $key, 'HS256' );
+        }
+
+
+
+        public static function verifyToken( $token ) {
+            try {
+                return $token == null ? 'unauthorized' : JWT::decode( $token, new Key( env( 'JWT_KEY' ), 'HS256' ) );
+            } catch ( Exception $e ) {
+                return 'unauthorized';
+            }
+        }
+
+
+
+        public static function createTokenForResetPassword( $userEmail ) {
+            $key = env( 'JWT_KEY' );
+
+            $payload = [
+                'iss'       => 'laravel-token',
+                'iat'       => time(),
+                'exp'       => time() + 60 * 60 * 24 * 30,
+                'userEmail' => $userEmail,
+                'userId'    => '0',
+            ];
+
+            return JWT::encode( $payload, $key, 'HS256' );
+        }
+
+7.  Creating Middleware Files
+
+        One for Monolith & another for API:
+
+        php artisan make:middleware TokenVerificationMiddleware
+        php artisan make:middleware TokenVerificationMiddlewareForAPI
