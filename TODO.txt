@@ -1,4 +1,4 @@
-1.  Creating Migration Files
+01. Creating Migration Files
         - Users Table -> Already exists, just customize
 
         php artisan make:migration create_categories_table
@@ -7,7 +7,7 @@
         php artisan make:migration create_invoices_table
         php artisan make:migration create_invoice_products_table
 
-2.  Creating Model Files
+02. Creating Model Files
         - User Model is already generated, just modify
 
         php artisan make:model Customer
@@ -16,7 +16,7 @@
         php artisan make:model InvoiceProduct
         php artisan make:model Product
 
-3.  Creating Controller Files
+03. Creating Controller Files
         php artisan make:controller CategoryController
         php artisan make:controller CustomerController
         php artisan make:controller DashboardController
@@ -25,7 +25,7 @@
         php artisan make:controller ProductController
         php artisan make:controller UserController
 
-4.  Customizing the migration and model files with relationship establishment
+04. Customizing the migration and model files with relationship establishment
 
         - users Table:
         Schema::create( 'users', function ( Blueprint $table ) {
@@ -124,7 +124,7 @@
         } );
 
 
-5.  Customizing Model files with Relationships establishment between the models
+05. Customizing Model files with Relationships establishment between the models
 
         - Category:
         protected $fillable = ['name', 'user_id'];
@@ -149,10 +149,10 @@
         - Product:
         protected $fillable = ['name', 'price', 'unit', 'user_id', 'category_id'];
 
-6.  Creating 'Helper/JWTToken.php' file in 'app' directory & firebase/php-jwt Token Setup
+06. Creating 'Helper/JWTToken.php' file in 'app' directory & firebase/php-jwt Token Setup
         composer require firebase/php-jwt
 
-7. 'JWTToken.php': createToken(), verifyToken(), createTokenForResetPassword() methods setup
+07. 'JWTToken.php': createToken(), verifyToken(), createTokenForResetPassword() methods setup
 
         public static function createToken( $userEmail, $userId ) {
 
@@ -195,9 +195,51 @@
             return JWT::encode( $payload, $key, 'HS256' );
         }
 
-7.  Creating Middleware Files
+08. Creating Middleware Files
 
         One for Monolith & another for API:
 
         php artisan make:middleware TokenVerificationMiddleware
         php artisan make:middleware TokenVerificationMiddlewareForAPI
+
+09. TokenVerificationMiddlewareForAPI middleware setup ( as it is API, so there are no sessions or cookies, so for data extract, 'header' will be used, we will collect 'token' from 'header' )
+
+        //? we will collect the token from 'header'
+        $token = $request->header( 'token' );
+
+        //? we will verify the token, if the token is not valid, then it will return 'unauthorized'
+        $result = JWTToken::verifyToken( $token );
+
+
+        //? if not valid then $result == 'unauthorized' ( it is coming from the Helper/JWTToken.php file's 'verifyToken()' method). That means, 'unauthorized' == 'unauthorized', so, the condition will satisfy and it will return 'unauthorized' with status code 401
+        if ( $result == 'unauthorized' ) {
+            return response()->json( ['message' => 'unauthorized'], 401 );
+        }
+
+        //? if the token is valid, then we will set the 'userEmail' and 'userId' to 'header'
+        $request->headers->set( 'userEmail', $result->userEmail );
+        $request->headers->set( 'userId', $result->userId );
+
+        //? then we will let the request to pass
+        return $next( $request );
+
+10. TokenVerificationMiddleware ( as it is not for API, so there are sessions or cookies, so for data extract, we will use 'cookie', that means we will collect 'token' from 'cookie' )
+
+        //? we will collect the token to 'cookie'
+        $token = $request->cookie( 'token' );
+
+        //? we will verify the token, if the token is not valid, then it will return 'unauthorized'
+        $result = JWTToken::verifyToken( $token );
+
+        if ( $result == 'unauthorized' ) {
+            return response()->json( ['message' => 'unauthorized'], 401 );
+        }
+
+        //? if the token is valid, then we will set the 'userEmail' and 'userId' to 'header'
+        $request->headers->set( 'userEmail', $result->userEmail );
+        $request->headers->set( 'userId', $result->userId );
+
+        //? then we will let the request to pass
+        return $next( $request );
+
+11.
