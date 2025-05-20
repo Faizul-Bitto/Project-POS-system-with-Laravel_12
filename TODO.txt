@@ -247,3 +247,24 @@
 
         and also run:
         php artisan migrate
+
+12. Disabling CSRF protection for testing the responses with Postman, we will enable it later after finishing the project
+        file path: app/bootstrap/app.php
+
+    return Application::configure( basePath: dirname( __DIR__ ) )
+        ->withRouting(
+            web: __DIR__ . '/../routes/web.php',
+            api: __DIR__ . '/../routes/api.php',
+            commands: __DIR__ . '/../routes/console.php',
+            health: '/up',
+        )
+        ->withMiddleware( function ( Middleware $middleware ) {
+            $middleware->validateCsrfTokens( except: [
+                '*',
+            ] );
+        } )
+        ->withExceptions( function ( Exceptions $exceptions ) {
+            //
+        } )->create();
+
+13.
