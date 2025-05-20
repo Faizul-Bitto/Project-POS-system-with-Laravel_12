@@ -49,6 +49,11 @@ class UserController extends Controller {
 
     public function userLogin( Request $request ) {
 
+        $request->validate( [
+            'email'    => 'required|email',
+            'password' => 'required',
+        ] );
+
         $email    = $request->input( 'email' );
         $password = $request->input( 'password' );
 
