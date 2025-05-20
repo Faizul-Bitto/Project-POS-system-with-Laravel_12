@@ -242,4 +242,8 @@
         //? then we will let the request to pass
         return $next( $request );
 
-11.
+11. Creating separate API routing file in 'routes' folder: 'api.php'
+        php artisan install:api
+
+        and also run:
+        php artisan migrate
