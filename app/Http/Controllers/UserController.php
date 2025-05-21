@@ -77,8 +77,9 @@ class UserController extends Controller {
 
     }
 
-    public function userLogout( Request $request ) {
+    public function userLogout() {
 
+        return redirect( '/' )->cookie( 'token', '', -1 );
     }
 
     public function sendOTP( Request $request ) {
