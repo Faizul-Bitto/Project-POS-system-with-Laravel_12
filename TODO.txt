@@ -344,6 +344,7 @@
 
                 public function userLogout( Request $request ) {
 
+                    return redirect( '/' )->cookie( 'token', '', -1 );
                 }
 
                 public function sendOTP( Request $request ) {
