@@ -347,8 +347,28 @@
                     return redirect( '/' )->cookie( 'token', '', -1 );
                 }
 
+
+
                 public function sendOTP( Request $request ) {
 
+                    $email = $request->input( 'email' );
+                    $otp   = rand( 1000, 9999 );
+                    $user  = User::where( 'email', '=', $email )->first();
+
+                    if ( $user ) {
+                        Mail::to( $email )->send( new OTPMail( $otp ) );
+                        User::where( 'email', '=', $email )->update( ['otp' => $otp] );
+
+                        return response()->json( [
+                            'status'  => 'success',
+                            'message' => "4 digit OTP {$otp} sent to your email address",
+                        ], 200 );
+                    } else {
+                        return response()->json( [
+                            'status'  => 'failed',
+                            'message' => 'User not found',
+                        ], 404 );
+                    }
                 }
 
                 public function verifyOTP( Request $request ) {
