@@ -371,13 +371,40 @@
                     }
                 }
 
+
+
                 public function verifyOTP( Request $request ) {
 
+                    $email = $request->input( 'email' );
+                    $otp   = $request->input( 'otp' );
+                    $user  = User::where( 'email', '=', $email )
+                        ->where( 'otp', '=', $otp )
+                        ->first();
+
+                    if ( $user ) {
+                        User::where( 'email', '=', $email )->update( ['otp' => '0'] );
+                        $token = JWTToken::createTokenForResetPassword( $request->input( 'email' ) );
+
+                        return response()->json( [
+                            'status'  => 'success',
+                            'message' => 'OTP verified successfully',
+                            'token'   => $token,
+                        ], 200 )->cookie( 'token', $token, time() + 60 * 24 * 30 );
+                    } else {
+                        return response()->json( [
+                            'status'  => 'failed',
+                            'message' => 'Invalid OTP',
+                        ], 404 );
+                    }
                 }
+
+
 
                 public function resetPassword( Request $request ) {
 
                 }
+
+
 
                 public function userProfileDetails( Request $request ) {
 
